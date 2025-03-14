@@ -35,6 +35,8 @@ fn into_cairo_diagnostics(
                 Severity::Error => cairo_lang_diagnostics::Severity::Error,
                 Severity::Warning => cairo_lang_diagnostics::Severity::Warning,
             },
+            end_ptr: None,
+            note: None,
         })
         .collect()
 }
