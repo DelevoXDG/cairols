@@ -1,6 +1,7 @@
 use cairo_lang_filesystem::db::FilesGroup;
 use cairo_lang_semantic::db::{PluginSuiteInput, SemanticGroup, SemanticGroupEx};
-use cairo_lint_core::plugin::cairo_lint_plugin_suite;
+use cairo_lint::CairoLintToolMetadata;
+use cairo_lint::plugin::cairo_lint_plugin_suite;
 
 use super::db::AnalysisDatabase;
 use super::plugins::AnalyzerPluginType;
@@ -21,7 +22,7 @@ impl LinterController {
 
 fn enable_cairo_lint_plugin_for_all_crates(db: &mut AnalysisDatabase) {
     let cairo_lint_analyzer_plugins =
-        db.intern_plugin_suite(cairo_lint_plugin_suite()).analyzer_plugins;
+        db.intern_plugin_suite(cairo_lint_plugin_suite(CairoLintToolMetadata::default()).unwrap()).analyzer_plugins;
 
     let default_analyzer_plugins = db.default_analyzer_plugins();
 
