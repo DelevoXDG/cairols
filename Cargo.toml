@@ -109,9 +109,7 @@ cairo-lang-defs = { git = "https://github.com/starkware-libs/cairo", rev = "711d
 cairo-lang-diagnostics = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-doc = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-eq-solver = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
-cairo-lang-executable = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-executable-plugin = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
-cairo-lang-execute-utils = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-filesystem = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-formatter = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-lowering = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
@@ -120,7 +118,6 @@ cairo-lang-plugins = { git = "https://github.com/starkware-libs/cairo", rev = "7
 cairo-lang-proc-macros = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-project = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-runnable-utils = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
-cairo-lang-runner = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-semantic = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-sierra = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-sierra-ap-change = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
@@ -133,7 +130,6 @@ cairo-lang-starknet-classes = { git = "https://github.com/starkware-libs/cairo",
 cairo-lang-syntax = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-syntax-codegen = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-test-plugin = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
-cairo-lang-test-runner = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-test-utils = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo", rev = "711d3076" }
 cairo-lint = { git = "https://github.com/software-mansion/cairo-lint", rev = "0a1da498777125b8f0d6291509c85f6502299da7" }
