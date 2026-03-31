@@ -206,7 +206,7 @@ fn nested_calls() {
 }
 
 #[test]
-fn arity_overflow() {
+fn arity_overflow_no_hints() {
     test_transform!(inlay_hint, r#"
     fn foo(a: felt252, b: felt252) -> felt252 { a + b }
 
@@ -217,7 +217,24 @@ fn arity_overflow() {
     fn foo(a: felt252, b: felt252) -> felt252 { a + b }
 
     fn main() {
-        foo(a: 1, b: 2, 3);
+        foo(1, 2, 3);
+    }
+    "#)
+}
+
+#[test]
+fn arity_underflow_no_hints() {
+    test_transform!(inlay_hint, r#"
+    fn foo(a: felt252, b: felt252) -> felt252 { a + b }
+
+    fn main() {
+        <sel>foo(1);</sel>
+    }
+    "#, @r#"
+    fn foo(a: felt252, b: felt252) -> felt252 { a + b }
+
+    fn main() {
+        foo(1);
     }
     "#)
 }
