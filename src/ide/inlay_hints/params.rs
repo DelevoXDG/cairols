@@ -1,7 +1,9 @@
 use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_semantic::Expr;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_semantic::items::function_with_body::{FunctionWithBodySemantic, SemanticExprLookup};
+use cairo_lang_semantic::items::function_with_body::{
+    FunctionWithBodySemantic, SemanticExprLookup,
+};
 use cairo_lang_semantic::items::functions::FunctionsSemantic;
 use cairo_lang_semantic::lookup_item::LookupItemEx;
 use cairo_lang_syntax::node::ast::{ArgClause, BinaryOperator, ExprBinary, ExprFunctionCall};
@@ -64,14 +66,10 @@ fn param_inlay_hints_inner<'db>(
 
         let signature = db.concrete_function_signature(func_call.function).ok()?;
 
-        let syntax_args: Vec<_> =
-            call_syntax.arguments(db).arguments(db).elements(db).collect();
+        let syntax_args: Vec<_> = call_syntax.arguments(db).arguments(db).elements(db).collect();
 
-        let params_to_zip: Vec<_> = signature
-            .params
-            .iter()
-            .filter(|p| p.name.to_string(db) != "self")
-            .collect();
+        let params_to_zip: Vec<_> =
+            signature.params.iter().filter(|p| p.name.to_string(db) != "self").collect();
 
         if syntax_args.len() != params_to_zip.len() {
             return None;

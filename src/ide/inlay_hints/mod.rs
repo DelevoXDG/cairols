@@ -47,10 +47,7 @@ pub fn inlay_hints(db: &AnalysisDatabase, params: InlayHintParams) -> Option<Vec
         result.extend(params::param_inlay_hints(db, file, call_syntax));
     }
 
-    for let_statement in nodes_in_range
-        .iter()
-        .filter_map(|node| StatementLet::cast(db, *node))
-    {
+    for let_statement in nodes_in_range.iter().filter_map(|node| StatementLet::cast(db, *node)) {
         // In particular, this can be an inline module (normal or component).
         let module = db.find_module_containing_node(let_statement.as_syntax_node())?;
 
