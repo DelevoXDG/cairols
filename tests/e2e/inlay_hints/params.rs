@@ -5,11 +5,13 @@ use crate::support::insta::test_transform;
 fn simple_function_call() {
     test_transform!(inlay_hint, r#"
     fn foo(x: felt252, y: felt252) {}
+
     fn main() {
         <sel>foo(1, 2);</sel>
     }
     "#, @r#"
     fn foo(x: felt252, y: felt252) {}
+
     fn main() {
         foo(x: 1, y: 2);
     }
@@ -20,11 +22,13 @@ fn simple_function_call() {
 fn single_parameter() {
     test_transform!(inlay_hint, r#"
     fn foo(x: felt252) {}
+
     fn main() {
         <sel>foo(42);</sel>
     }
     "#, @r#"
     fn foo(x: felt252) {}
+
     fn main() {
         foo(x: 42);
     }
@@ -35,11 +39,13 @@ fn single_parameter() {
 fn no_parameters() {
     test_transform!(inlay_hint, r#"
     fn foo() {}
+
     fn main() {
         <sel>foo();</sel>
     }
     "#, @r#"
     fn foo() {}
+
     fn main() {
         foo();
     }
@@ -50,11 +56,13 @@ fn no_parameters() {
 fn named_argument_skipped() {
     test_transform!(inlay_hint, r#"
     fn foo(x: felt252, y: felt252) {}
+
     fn main() {
         <sel>foo(x: 1, y: 2);</sel>
     }
     "#, @r#"
     fn foo(x: felt252, y: felt252) {}
+
     fn main() {
         foo(x: 1, y: 2);
     }
@@ -65,6 +73,7 @@ fn named_argument_skipped() {
 fn argument_name_matches_param() {
     test_transform!(inlay_hint, r#"
     fn foo(x: felt252, y: felt252) {}
+
     fn main() {
         let x = 1;
         let y = 2;
@@ -72,6 +81,7 @@ fn argument_name_matches_param() {
     }
     "#, @r#"
     fn foo(x: felt252, y: felt252) {}
+
     fn main() {
         let x = 1;
         let y = 2;
@@ -84,12 +94,14 @@ fn argument_name_matches_param() {
 fn mixed_matching_and_non_matching() {
     test_transform!(inlay_hint, r#"
     fn foo(x: felt252, y: felt252) {}
+
     fn main() {
         let x = 1;
         <sel>foo(x, 42);</sel>
     }
     "#, @r#"
     fn foo(x: felt252, y: felt252) {}
+
     fn main() {
         let x = 1;
         foo(x, y: 42);
@@ -101,11 +113,13 @@ fn mixed_matching_and_non_matching() {
 fn with_type_hint_on_let() {
     test_transform!(inlay_hint, r#"
     fn foo(x: felt252, y: felt252) -> felt252 { x + y }
+
     fn main() {
         <sel>let result = foo(1, 2);</sel>
     }
     "#, @r#"
     fn foo(x: felt252, y: felt252) -> felt252 { x + y }
+
     fn main() {
         let result<hint>: </hint><hint tooltip="```cairo\nfelt252\n```\n">felt252</hint> = foo(x: 1, y: 2);
     }
@@ -116,11 +130,13 @@ fn with_type_hint_on_let() {
 fn generic_function() {
     test_transform!(inlay_hint, r#"
     fn identity<T>(value: T) -> T { value }
+
     fn main() {
         <sel>identity(42);</sel>
     }
     "#, @r#"
     fn identity<T>(value: T) -> T { value }
+
     fn main() {
         identity(value: 42);
     }
