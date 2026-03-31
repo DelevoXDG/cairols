@@ -192,13 +192,17 @@ fn method_call() {
 fn nested_calls() {
     test_transform!(inlay_hint, r#"
     fn add(a: felt252, b: felt252) -> felt252 { a + b }
+
     fn double(n: felt252) -> felt252 { n + n }
+
     fn main() {
         <sel>add(double(1), double(2));</sel>
     }
     "#, @r#"
     fn add(a: felt252, b: felt252) -> felt252 { a + b }
+
     fn double(n: felt252) -> felt252 { n + n }
+
     fn main() {
         add(a: double(n: 1), b: double(n: 2));
     }
