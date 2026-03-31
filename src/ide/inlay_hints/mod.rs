@@ -38,16 +38,16 @@ pub fn inlay_hints(db: &AnalysisDatabase, params: InlayHintParams) -> Option<Vec
 
     let mut result = vec![];
 
-    let nodes_in_range: Vec<_> = syntax
+    let nodes: Vec<_> = syntax
         .descendants(db)
         .filter(|node| range.contains(node.span_without_trivia(db)))
         .collect();
 
-    for call_syntax in nodes_in_range.iter().filter_map(|node| ExprFunctionCall::cast(db, *node)) {
+    for call_syntax in nodes.iter().filter_map(|node| ExprFunctionCall::cast(db, *node)) {
         result.extend(params::param_inlay_hints(db, file, call_syntax));
     }
 
-    for let_statement in nodes_in_range.iter().filter_map(|node| StatementLet::cast(db, *node)) {
+    for let_statement in nodes.iter().filter_map(|node| StatementLet::cast(db, *node)) {
         // In particular, this can be an inline module (normal or component).
         let module = db.find_module_containing_node(let_statement.as_syntax_node())?;
 
