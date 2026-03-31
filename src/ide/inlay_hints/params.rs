@@ -6,6 +6,7 @@ use cairo_lang_semantic::items::functions::FunctionsSemantic;
 use cairo_lang_semantic::lookup_item::LookupItemEx;
 use cairo_lang_syntax::node::ast::{ArgClause, BinaryOperator, ExprBinary, ExprFunctionCall};
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
+use cairo_language_common::CommonGroup;
 use lsp_types::{InlayHint, InlayHintKind, InlayHintLabel};
 
 use crate::lang::db::{AnalysisDatabase, LsSemanticGroup};
