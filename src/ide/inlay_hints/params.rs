@@ -6,7 +6,7 @@ use cairo_lang_semantic::items::function_with_body::{
 };
 use cairo_lang_semantic::items::functions::FunctionsSemantic;
 use cairo_lang_semantic::lookup_item::LookupItemEx;
-use cairo_lang_syntax::node::ast::{ArgClause, BinaryOperator, ExprBinary, ExprFunctionCall};
+use cairo_lang_syntax::node::ast::{self, ArgClause, BinaryOperator, ExprBinary, ExprFunctionCall};
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use cairo_language_common::CommonGroup;
 use lsp_types::{InlayHint, InlayHintKind, InlayHintLabel};
@@ -36,35 +36,37 @@ fn param_inlay_hints_inner<'db>(
         .is_some_and(|binary| matches!(binary.op(db), BinaryOperator::Dot(_)));
 
     let resultants = db.get_node_resultants(call_node)?;
+    let semantic_db: &dyn SemanticGroup = db;
 
     for resultant in resultants {
         let Some(resultant_call) = ExprFunctionCall::cast(db, *resultant) else {
             continue;
         };
 
-        let lookup_item = db.find_lookup_item(resultant_call.as_syntax_node())?;
-        let function_with_body = lookup_item.function_with_body()?;
+        let Some(lookup_item) = db.find_lookup_item(resultant_call.as_syntax_node()) else {
+            continue;
+        };
+        let Some(function_with_body) = lookup_item.function_with_body() else {
+            continue;
+        };
 
-        let semantic_expr = if is_method_call {
+        let expr_id = if is_method_call {
             let parent = resultant_call.as_syntax_node().parent(db)?;
             let binary = ExprBinary::cast(db, parent)?;
-            let expr_id =
-                db.lookup_expr_by_ptr(function_with_body, binary.stable_ptr(db).into()).ok()?;
-            let semantic_db: &dyn SemanticGroup = db;
-            semantic_db.expr_semantic(function_with_body, expr_id)
+            db.lookup_expr_by_ptr(function_with_body, binary.stable_ptr(db).into()).ok()?
         } else {
-            let expr_id = db
-                .lookup_expr_by_ptr(function_with_body, resultant_call.stable_ptr(db).into())
-                .ok()?;
-            let semantic_db: &dyn SemanticGroup = db;
-            semantic_db.expr_semantic(function_with_body, expr_id)
+            db.lookup_expr_by_ptr(function_with_body, resultant_call.stable_ptr(db).into()).ok()?
         };
+
+        let semantic_expr = semantic_db.expr_semantic(function_with_body, expr_id);
 
         let Expr::FunctionCall(func_call) = semantic_expr else {
             continue;
         };
 
-        let signature = db.concrete_function_signature(func_call.function).ok()?;
+        let Ok(signature) = db.concrete_function_signature(func_call.function) else {
+            continue;
+        };
 
         let syntax_args: Vec<_> = call_syntax.arguments(db).arguments(db).elements(db).collect();
 
@@ -72,7 +74,7 @@ fn param_inlay_hints_inner<'db>(
             signature.params.iter().filter(|p| p.name.to_string(db) != "self").collect();
 
         if syntax_args.len() != params_to_zip.len() {
-            return None;
+            continue;
         }
 
         let mut hints = Vec::new();
@@ -103,19 +105,15 @@ fn param_inlay_hints_inner<'db>(
     None
 }
 
-fn should_skip_hint(
-    db: &AnalysisDatabase,
-    arg_expr: &cairo_lang_syntax::node::ast::Expr,
-    param_name: &str,
-) -> bool {
-    if let cairo_lang_syntax::node::ast::Expr::Path(path) = arg_expr {
+fn should_skip_hint(db: &AnalysisDatabase, arg_expr: &ast::Expr, param_name: &str) -> bool {
+    if let ast::Expr::Path(path) = arg_expr {
         let text = path.as_syntax_node().get_text_without_trivia(db).to_string(db);
         if text == param_name {
             return true;
         }
     }
 
-    matches!(arg_expr, cairo_lang_syntax::node::ast::Expr::Closure(_))
+    matches!(arg_expr, ast::Expr::Closure(_))
 }
 
 fn param_name_inlay_hint<'db>(
