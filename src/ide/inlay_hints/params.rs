@@ -20,14 +20,6 @@ pub fn param_inlay_hints<'db>(
     file: FileId<'db>,
     call_syntax: ExprFunctionCall<'db>,
 ) -> Vec<InlayHint> {
-    param_inlay_hints_inner(db, file, call_syntax).unwrap_or_default()
-}
-
-fn param_inlay_hints_inner<'db>(
-    db: &'db AnalysisDatabase,
-    file: FileId<'db>,
-    call_syntax: ExprFunctionCall<'db>,
-) -> Option<Vec<InlayHint>> {
     let call_node = call_syntax.as_syntax_node();
 
     let is_method_call = call_node
@@ -35,7 +27,9 @@ fn param_inlay_hints_inner<'db>(
         .and_then(|parent| ExprBinary::cast(db, parent))
         .is_some_and(|binary| matches!(binary.op(db), BinaryOperator::Dot(_)));
 
-    let resultants = db.get_node_resultants(call_node)?;
+    let Some(resultants) = db.get_node_resultants(call_node) else {
+        return vec![];
+    };
     let semantic_db: &dyn SemanticGroup = db;
 
     for resultant in resultants {
@@ -51,11 +45,24 @@ fn param_inlay_hints_inner<'db>(
         };
 
         let expr_id = if is_method_call {
-            let parent = resultant_call.as_syntax_node().parent(db)?;
-            let binary = ExprBinary::cast(db, parent)?;
-            db.lookup_expr_by_ptr(function_with_body, binary.stable_ptr(db).into()).ok()?
+            let Some(parent) = resultant_call.as_syntax_node().parent(db) else {
+                continue;
+            };
+            let Some(binary) = ExprBinary::cast(db, parent) else {
+                continue;
+            };
+            let Ok(id) = db.lookup_expr_by_ptr(function_with_body, binary.stable_ptr(db).into())
+            else {
+                continue;
+            };
+            id
         } else {
-            db.lookup_expr_by_ptr(function_with_body, resultant_call.stable_ptr(db).into()).ok()?
+            let Ok(id) =
+                db.lookup_expr_by_ptr(function_with_body, resultant_call.stable_ptr(db).into())
+            else {
+                continue;
+            };
+            id
         };
 
         let semantic_expr = semantic_db.expr_semantic(function_with_body, expr_id);
@@ -72,10 +79,6 @@ fn param_inlay_hints_inner<'db>(
 
         let params_to_zip: Vec<_> =
             signature.params.iter().filter(|p| p.name.to_string(db) != "self").collect();
-
-        if syntax_args.len() != params_to_zip.len() {
-            continue;
-        }
 
         let mut hints = Vec::new();
 
@@ -99,10 +102,10 @@ fn param_inlay_hints_inner<'db>(
             }
         }
 
-        return Some(hints);
+        return hints;
     }
 
-    None
+    vec![]
 }
 
 fn should_skip_hint(db: &AnalysisDatabase, arg_expr: &ast::Expr, param_name: &str) -> bool {

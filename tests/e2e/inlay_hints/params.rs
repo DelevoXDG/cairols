@@ -204,3 +204,41 @@ fn nested_calls() {
     }
     "#)
 }
+
+#[test]
+fn closure_argument_skipped() {
+    test_transform!(inlay_hint, r#"
+    fn apply(callback: fn(felt252) -> felt252, value: felt252) -> felt252 {
+        callback(value)
+    }
+
+    fn main() {
+        <sel>apply(|x| x + 1, 42);</sel>
+    }
+    "#, @r#"
+    fn apply(callback: fn(felt252) -> felt252, value: felt252) -> felt252 {
+        callback(value)
+    }
+
+    fn main() {
+        apply(|x| x + 1, value: 42);
+    }
+    "#)
+}
+
+#[test]
+fn arity_overflow() {
+    test_transform!(inlay_hint, r#"
+    fn foo(a: felt252, b: felt252) -> felt252 { a + b }
+
+    fn main() {
+        <sel>foo(1, 2, 3);</sel>
+    }
+    "#, @r#"
+    fn foo(a: felt252, b: felt252) -> felt252 { a + b }
+
+    fn main() {
+        foo(a: 1, b: 2, 3);
+    }
+    "#)
+}
