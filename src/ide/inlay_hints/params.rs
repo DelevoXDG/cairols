@@ -35,7 +35,7 @@ pub fn param_inlay_hints<'db>(
         .collect()
 }
 
-/// Resolves a syntax-level function call to its semantic [`Signature`] via macro resultants.
+/// Resolves a syntax-level function call to its semantic [`Signature`].
 fn resolve_call_signature<'db>(
     db: &'db AnalysisDatabase,
     call_syntax: &ExprFunctionCall<'db>,
@@ -75,7 +75,8 @@ fn resolve_call_signature<'db>(
         .cloned()
 }
 
-/// Produces a parameter-name hint for a single argument, or [`None`] if the hint should be suppressed.
+/// Produces a parameter-name hint for a single argument, or [`None`] if skipped.
+/// Skips named args and args with a name matching the param name (`x: x`).
 fn hint_for_arg<'db>(
     db: &'db AnalysisDatabase,
     file: FileId<'db>,
@@ -94,6 +95,7 @@ fn hint_for_arg<'db>(
     make_hint(db, file, og_node, param_name)
 }
 
+/// Skips hint if the arg name matches the param name (`x: x`).
 fn should_skip_hint(db: &AnalysisDatabase, arg_expr: &ast::Expr, param_name: &str) -> bool {
     if let ast::Expr::Path(path) = arg_expr {
         let text = path.as_syntax_node().get_text_without_trivia(db).to_string(db);
@@ -101,8 +103,7 @@ fn should_skip_hint(db: &AnalysisDatabase, arg_expr: &ast::Expr, param_name: &st
             return true;
         }
     }
-
-    matches!(arg_expr, ast::Expr::Closure(_))
+    false
 }
 
 fn make_hint<'db>(
